@@ -2,16 +2,13 @@ package user
 
 import (
 	"github.com/Nopalev/janjiyan/utilities/database"
-	"gorm.io/gorm/clause"
 )
 
-func createDB(user User) User {
+func createDB(user User) (User, error) {
 	db := database.GetDB()
+	res := db.Create(&user)
 
-	if db != nil {
-		db.Create(&user)
-	}
-	return user
+	return user, res.Error
 }
 
 func readDB(username string) User {
@@ -28,10 +25,10 @@ func userExistDB(username string) bool {
 	return res.RowsAffected == 1
 }
 
-func updateDB(username string, user User) User {
+func updateDB(username string, user User) error {
 	db := database.GetDB()
-	db.Model(&User{}).Clauses(clause.Returning{}).Where("username = ?", username).Updates(&user)
-	return user
+	res := db.Model(&user).Where("username = ?", username).Updates(user)
+	return res.Error
 }
 
 func deleteDB(username string) {

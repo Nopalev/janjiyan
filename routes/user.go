@@ -18,8 +18,14 @@ func userUpdate(ctx *gin.Context) {
 	}
 
 	issuer := ctx.MustGet("issuer").(string)
-	user, token := user.Update(issuer, updatedUser)
-	user.Password = ""
+	user, token, err := user.Update(issuer, updatedUser)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"user":  &user,
 		"token": token,

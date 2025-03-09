@@ -17,8 +17,13 @@ func register(ctx *gin.Context) {
 		})
 		return
 	}
-	newUser, token = user.Register(newUser)
-	newUser.Password = ""
+	newUser, token, err = user.Register(newUser)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"user":  &newUser,
 		"token": token,

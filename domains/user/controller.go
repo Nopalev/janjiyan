@@ -7,18 +7,26 @@ import (
 	"github.com/Nopalev/janjiyan/utilities/auth"
 )
 
-func Register(user User) (User, string) {
+func Register(user User) (User, string, error) {
 	var err error
 	user.Password, err = auth.HashPassword(user.Password)
 	if err != nil {
 		log.Println(err)
 	}
-	user = createDB(user)
+	user, err = createDB(user)
+	if err != nil {
+		return user, "", errors.New("username cannot be used")
+	}
 	token, err := auth.CreateToken(user.Username)
 	if err != nil {
 		log.Println(err)
 	}
-	return user, token
+	user.Password = ""
+	return user, token, nil
+}
+
+func IDbyUsername(username string) int {
+	return readDB(username).ID
 }
 
 func Login(attemptedUser User) (string, error) {
@@ -40,7 +48,7 @@ func CheckIfUserExist(username string) bool {
 	return userExistDB(username)
 }
 
-func Update(username string, user User) (User, string) {
+func Update(username string, user User) (User, string, error) {
 	if user.Password != "" {
 		var err error
 		user.Password, err = auth.HashPassword(user.Password)
@@ -49,13 +57,19 @@ func Update(username string, user User) (User, string) {
 			log.Println(err)
 		}
 	}
-	updateDB(username, user)
-	user = readDB(user.Username)
+
+	err := updateDB(username, user)
+	if err != nil {
+		return user, "", errors.New("username cannot be used")
+	}
+
+	user = readDB(username)
 	token, err := auth.CreateToken(user.Username)
 	if err != nil {
-		return user, ""
+		return user, "", err
 	}
-	return user, token
+	user.Password = ""
+	return user, token, nil
 }
 
 func Delete(username string) {

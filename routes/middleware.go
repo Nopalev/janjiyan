@@ -8,13 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func middleware(ctx *gin.Context) {
+func authMiddleware(ctx *gin.Context) {
 	tokenString := ctx.GetHeader("Authorization")
 	tokenString = tokenString[len("Bearer "):]
 
 	token, err := auth.VerifyToken(tokenString)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": err.Error(),
 		})
 		return

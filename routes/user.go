@@ -3,11 +3,13 @@ package routes
 import (
 	"net/http"
 
+	"github.com/Nopalev/janjiyan/domains/appointment"
+	"github.com/Nopalev/janjiyan/domains/invitation"
 	"github.com/Nopalev/janjiyan/domains/user"
 	"github.com/gin-gonic/gin"
 )
 
-func userUpdate(ctx *gin.Context) {
+func updateUser(ctx *gin.Context) {
 	var updatedUser user.User
 	err := ctx.BindJSON(&updatedUser)
 	if err != nil {
@@ -18,7 +20,7 @@ func userUpdate(ctx *gin.Context) {
 	}
 
 	issuer := ctx.MustGet("issuer").(string)
-	user, token, err := user.Update(issuer, updatedUser)
+	updatedUserWithoutPassword, token, err := user.Update(issuer, updatedUser)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -27,12 +29,12 @@ func userUpdate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusAccepted, gin.H{
-		"user":  &user,
+		"user":  &updatedUserWithoutPassword,
 		"token": token,
 	})
 }
 
-func userDelete(ctx *gin.Context) {
+func deleteUser(ctx *gin.Context) {
 	issuer := ctx.MustGet("issuer").(string)
-	user.Delete(issuer)
+	user.Delete(issuer, appointment.DeleteByUser, invitation.DeleteByUser)
 }

@@ -9,6 +9,7 @@ import (
 
 func register(ctx *gin.Context) {
 	var newUser user.User
+	var newUserWithoutPassword user.UserWithoutPassword
 	var token string
 	err := ctx.BindJSON(&newUser)
 	if err != nil {
@@ -17,15 +18,17 @@ func register(ctx *gin.Context) {
 		})
 		return
 	}
-	newUser, token, err = user.Register(newUser)
+
+	newUserWithoutPassword, token, err = user.Register(newUser)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
+
 	ctx.JSON(http.StatusAccepted, gin.H{
-		"user":  &newUser,
+		"user":  &newUserWithoutPassword,
 		"token": token,
 	})
 }

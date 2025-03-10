@@ -7,22 +7,22 @@ import (
 	"github.com/Nopalev/janjiyan/utilities/auth"
 )
 
-func Register(user User) (User, string, error) {
+func Register(user User) (UserWithoutPassword, string, error) {
 	var err error
 	user.Password, err = auth.HashPassword(user.Password)
 	if err != nil {
 		log.Println(err)
 	}
-	user, err = createDB(user)
+	err = createDB(&user)
 	if err != nil {
-		return user, "", errors.New("username cannot be used")
+		return RemovePassword(user), "", errors.New("username cannot be used")
 	}
 	token, err := auth.CreateToken(user.Username)
 	if err != nil {
 		log.Println(err)
 	}
 	user.Password = ""
-	return user, token, nil
+	return RemovePassword(user), token, nil
 }
 
 func IDbyUsername(username string) int {
@@ -48,7 +48,7 @@ func CheckIfUserExist(username string) bool {
 	return userExistDB(username)
 }
 
-func Update(username string, user User) (User, string, error) {
+func Update(username string, user User) (UserWithoutPassword, string, error) {
 	if user.Password != "" {
 		var err error
 		user.Password, err = auth.HashPassword(user.Password)
@@ -60,18 +60,20 @@ func Update(username string, user User) (User, string, error) {
 
 	err := updateDB(username, user)
 	if err != nil {
-		return user, "", errors.New("username cannot be used")
+		return RemovePassword(user), "", errors.New("username cannot be used")
 	}
 
 	user = readDB(username)
 	token, err := auth.CreateToken(user.Username)
 	if err != nil {
-		return user, "", err
+		return RemovePassword(user), "", err
 	}
 	user.Password = ""
-	return user, token, nil
+	return RemovePassword(user), token, nil
 }
 
-func Delete(username string) {
+func Delete(username string, invitationDeletion func(int), appointmentDeletion func(int)) {
+	invitationDeletion(IDbyUsername(username))
+	appointmentDeletion(IDbyUsername(username))
 	deleteDB(username)
 }

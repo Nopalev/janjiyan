@@ -4,10 +4,9 @@ import (
 	"github.com/Nopalev/janjiyan/utilities/database"
 )
 
-func createDB(appointment Appointment) Appointment {
+func createDB(appointment *Appointment) {
 	db := database.GetDB()
 	db.Create(&appointment)
-	return appointment
 }
 
 func readDB(ID int) Appointment {
@@ -15,6 +14,7 @@ func readDB(ID int) Appointment {
 	var appointment Appointment
 	appointment.ID = ID
 	db.First(&appointment)
+	db.Model(appointment).Association("User").Find(&appointment.User)
 	return appointment
 }
 
@@ -35,4 +35,9 @@ func deleteDB(ID int) {
 	var appointment Appointment
 	appointment.ID = ID
 	db.Delete(&appointment)
+}
+
+func deleteByUserDB(userID int) {
+	db := database.GetDB()
+	db.Delete(&Appointment{}, "creator_id = ?", userID)
 }

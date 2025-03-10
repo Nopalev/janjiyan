@@ -4,11 +4,11 @@ import (
 	"github.com/Nopalev/janjiyan/utilities/database"
 )
 
-func createDB(user User) (User, error) {
+func createDB(user *User) error {
 	db := database.GetDB()
 	res := db.Create(&user)
 
-	return user, res.Error
+	return res.Error
 }
 
 func readDB(username string) User {

@@ -2,6 +2,7 @@ package invitation
 
 import (
 	"errors"
+	"log"
 	"slices"
 
 	"github.com/Nopalev/janjiyan/domains/appointment"
@@ -10,11 +11,12 @@ import (
 
 func Create(invitation Invitation, issuer string) (Invitation, error) {
 	checkedAppointment, err := appointment.Read(invitation.AppointmentID, issuer)
+	log.Println(checkedAppointment, issuer)
 	if err != nil {
 		return invitation, err
 	}
 
-	if checkedAppointment.User.Username == issuer {
+	if user.IDbyUsername(issuer) == invitation.InviteeID {
 		return invitation, errors.New("you can't invite yourself")
 	}
 

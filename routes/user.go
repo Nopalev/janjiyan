@@ -37,4 +37,7 @@ func updateUser(ctx *gin.Context) {
 func deleteUser(ctx *gin.Context) {
 	issuer := ctx.MustGet("issuer").(string)
 	user.Delete(issuer, appointment.DeleteByUser, invitation.DeleteByUser)
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "user deleted",
+	})
 }

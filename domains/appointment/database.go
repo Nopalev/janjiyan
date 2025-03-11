@@ -27,7 +27,7 @@ func readCreatedDB(ID int) []Appointment {
 
 func updateDB(appointment Appointment) {
 	db := database.GetDB()
-	db.Model(&appointment).Where("id = ?", appointment.ID).Updates(appointment)
+	db.Model(&appointment).Where("id = ?", appointment.ID).Update("title", appointment.Title).Update("start", appointment.Start).Update("end", appointment.End)
 }
 
 func deleteDB(ID int) {

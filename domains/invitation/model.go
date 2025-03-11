@@ -1,6 +1,8 @@
 package invitation
 
 import (
+	"log"
+
 	"github.com/Nopalev/janjiyan/domains/appointment"
 	"github.com/Nopalev/janjiyan/domains/user"
 )
@@ -34,6 +36,7 @@ type Member struct {
 
 func getMember(invitations []Invitation) Member {
 	var member Member
+	log.Println(invitations)
 	assocAppointment(&invitations[0])
 	member.Appointment = invitations[0].Appointment
 	member.Creator = invitations[0].Appointment.User.Username

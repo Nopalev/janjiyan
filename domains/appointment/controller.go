@@ -2,7 +2,6 @@ package appointment
 
 import (
 	"errors"
-	"log"
 
 	"github.com/Nopalev/janjiyan/domains/user"
 )
@@ -15,7 +14,6 @@ func Create(appointment Appointment, issuer string) Appointment {
 
 func Read(ID int, issuer string) (Appointment, error) {
 	appointment := readDB(ID)
-	log.Println(appointment)
 	if issuer != appointment.User.Username {
 		return appointment, errors.New("you are not the creator of this appointment")
 	}

@@ -10,6 +10,14 @@ import (
 
 func authMiddleware(ctx *gin.Context) {
 	tokenString := ctx.GetHeader("Authorization")
+
+	if tokenString == "" {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"error": "no token is being found",
+		})
+		return
+	}
+
 	tokenString = tokenString[len("Bearer "):]
 
 	token, err := auth.VerifyToken(tokenString)
